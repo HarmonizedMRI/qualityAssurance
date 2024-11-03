@@ -1,14 +1,5 @@
-# Introduction
-This repository contains sequence source codes and post-processing scripts for the *Automated Vendor-Independent Open-Source Quality Assurance Protocol Using Pulseq* study.
-## QA functions
-Please add the QC_functions directory to the Matlab's path for post-processing.
-## Sequences
-### write_QA_Tran_EPIrs.m
-for temporal quality metric calculations.
-### write_QA_Tran_T1.m
-for structural quality metric calculations.
-## Post-processing
-### temporalQuality
-for temporal quality metric calculations.
-### structuralQuality
-for structural quality metric calculations.
+# This directory contains information for image reconstruction
+* pulseq2mrd_epi.m: the Matlab script to convert the EPI rawdata to ISMRMRD data.
+* pulseq2mrd_se.m: the Matlab script to convert the spin-echo rawdata to ISMRMRD data.     
+
+For detailed tutorials of the image reconstruction using Siemens ICE and Gadgetron, please visit [this link](https://github.com/pulseq/Pulseq-Rocks-2023-24-ISMRM-Reproducibility-Challenge/tree/main/image_reconstruction_tutorial).
