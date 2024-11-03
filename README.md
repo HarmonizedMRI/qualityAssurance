@@ -1,14 +1,10 @@
-# Introduction
-This repository contains sequence source codes and post-processing scripts for the *Automated Vendor-Independent Open-Source Quality Assurance Protocol Using Pulseq* study.
-## QA functions
-Please add the QC_functions directory to the Matlab's path for post-processing.
-## Sequences
-### write_QA_Tran_EPIrs.m
-for temporal quality metric calculations.
-### write_QA_Tran_T1.m
-for structural quality metric calculations.
-## Post-processing
-### temporalQuality
-for temporal quality metric calculations.
-### structuralQuality
-for structural quality metric calculations.
+# Welcome to the repository for the study "*Automated, Open-Source, Vendor-Independent Quality Assurance Protocol Based on the Pulseq Framework*"
+Neuroimaging research requires consistent image quality and temporal signal stability, especially for funtional MRI studies that rely on detecting subtle BOLD signal changes.
+Regular MR system performance monitoring is essential, especially for longitudinal and multi-site studies.
+This study aims to establish a robust quality assurance (QA) protocol to promote data comparability across scanner models, vendors, and sites, 
+as well as over prolonged periods of time.      
+this repository hosts materials for
+* data acquistion,
+* image reconstruction,
+* post-processing, and
+* example data with reconstruction and post-processing.
