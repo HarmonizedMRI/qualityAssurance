@@ -8,4 +8,4 @@ This repository hosts materials for
 * data acquistion,
 * image reconstruction,
 * post-processing, and
-* example data with reconstruction and post-processing.
+* example image and post-processing.
