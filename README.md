@@ -3,7 +3,8 @@ Neuroimaging research requires consistent image quality and temporal signal stab
 Regular MR system performance monitoring is essential, especially for longitudinal and multi-site studies.
 This study aims to establish a robust quality assurance (QA) protocol to promote data comparability across scanner models, vendors, and sites, 
 as well as over prolonged periods of time.      
-this repository hosts materials for
+
+This repository hosts materials for
 * data acquistion,
 * image reconstruction,
 * post-processing, and
