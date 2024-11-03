@@ -1,14 +1,4 @@
-# Introduction
-This repository contains sequence source codes and post-processing scripts for the *Automated Vendor-Independent Open-Source Quality Assurance Protocol Using Pulseq* study.
-## QA functions
-Please add the QC_functions directory to the Matlab's path for post-processing.
-## Sequences
-### write_QA_Tran_EPIrs.m
-for temporal quality metric calculations.
-### write_QA_Tran_T1.m
-for structural quality metric calculations.
-## Post-processing
-### temporalQuality
-for temporal quality metric calculations.
-### structuralQuality
-for structural quality metric calculations.
+# Post-processing
+This directory contains scripts for post-processing. Before post-processing, please add the QC_functions into the Matlab path.    
+* EPI_QA_ABCD_main.m is used to process multiple EPI .nii data in a folder.   
+* structuralQuality_main.m is used to process multiple spin-echo .nii image data in a folder.   
