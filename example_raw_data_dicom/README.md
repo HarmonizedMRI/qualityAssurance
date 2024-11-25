@@ -1,4 +1,5 @@
-# Example raw data and DICOM images from Cima.X.
+# Example raw data and DICOM images
+The data and DICOM images were acquired from Cima.X on the fBIRN phantom on 06.08.2024.              
 **Note**: The package is too big to upload here and can be accessed via this link instead.
 * DICOM folder: contains the DICOM images for four EPI scans (the first two scans for warm-up) and two spin-echo scans.
 * `meas*.dat`: Siemens raw data of two EPI scans for temporal quality analysis and two spin-echo scans for structural quality analysis.
