@@ -14,7 +14,7 @@
 * `specialCard_ICE.png`: Special card setting for ICE online reconstruction.
 
 ## Procedures for Gadgetron offline reconstruction
-### Step 1: Gadgetron installation ([for more details](https://gadgetron.github.io/tutorial/))
+### Step 1: Gadgetron installation (for more details, visit [here](https://gadgetron.github.io/tutorial/))
 * Download and install [Docker](https://www.docker.com/) software.
 * Open your terminal and run: `docker run -t --name gt_lastest --detach --volume %cd%:/opt/data ghcr.io/gadgetron/gadgetron/gadgetron_ubuntu_dev_nocuda:latest`. This will download and then launch the [latest-version Gadgetron](https://gadgetron.readthedocs.io/en/latest/building.html) in a Docker container. It will also mount your current folder as a data folder inside the container.
 * Run this command: `docker exec -ti lastest /bin/bash`. This will execute your Gadgetron container.
