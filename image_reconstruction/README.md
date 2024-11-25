@@ -44,6 +44,6 @@
 `pulseq_epi_im = reshape(pulseq_epi_im, [64, 64, 27, 200]) ;`         
 ### Procedure for ICE online reconstruction
 Before executing the Pulseq-based sequences, you can enable ICE online Reconstruction following the procedures below:
-* Navigate to the Special Card (`specialCard_ICE.png`), set `Data handling` to `ICE STD` for NUMARIS/X (e.g. XA60A, XA61A), and `ICE 2D` for NUMARIS/4 (e.g. VB, VD, VE).
+* Navigate to the Special Card (`specialCard_ICE.png`), set `Data handling` to `ICE STD` for NUMARIS/X (e.g. XA60A and XA61A), and `ICE 2D` for NUMARIS/4 (e.g. VB, VD, and VE).
 * Select `Sum-of-Square` for coil combination.
 * Be sure that the maximal pixel intensity does not violate the intensity threshold of **4096**.
