@@ -1,5 +1,13 @@
-This is the instruction for data acquisition.
-* `write_QA_Tran_EPIrs.m`: to generate `QA_epi.seq` file for EPI scans.
-* `write_QA_Tran_T1.m`: to generate QA_T1.seq file for spin-echo scans.
-* `20241122_QA_protocol_instruction_siemens.docx`: standard operating procedure for QA measurements.
-* `QA_record.xlsx`: Excel sheet for the record of QA measurements.
+# All reconstructed images
+This directory contains all reconstructed images from three Siemens 3T scanners (Trio, Prisma.Fit, and Cima.X) and one GE (UHP) 3T scanner.           
+**Note**: The image package is too big to upload here and can be accessed via this link instead.             
+
+There are four sub-folders for each scanner. And each sub-folder contains (some of) the following sub-folders:
+* product_epi_ice: ICE-reconstructed product EPI images.
+* product_epi_gt: Gadgetron-reconstructed product EPI images.
+* pulseq_epi_ice: ICE-reconstructed Pulseq EPI images.
+* pulseq_epi_gt: Gadgetron-reconstructed Pulseq EPI images.
+* product_se_ice: ICE-reconstructed product spin-echo images.
+* product_se_gt: Gadgetron-reconstructed product spin-echo images.
+* pulseq_se_ice: ICE-reconstructed Pulseq spin-echo images.
+* pulseq_se_gt: Gadgetron-reconstructed Pulseq spin-echo images.
