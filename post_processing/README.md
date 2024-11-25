@@ -1,5 +1,5 @@
 # This is the instruction for post-processing.
-The example post-processing is based on the reconstructed images from Cima.X over 5 days.
+The example post-processing is based on the reconstructed images from Cima.X over five days.
 ## Reconstructed images from Cima.X
 **Note**: The images are too big to upload here, and can be accessed via this link as an alternative. All `epi` folders contain a `temporalQuality_main.m` to call the `temporalQuality.m` function for temporal quality analysis. All `se` folders contain a `structuralQuality_main.m` to call the `structuralQuality.m` function for structural quality analysis.
 * `product_epi_ice`: ICE-reconstructed product EPI images.
