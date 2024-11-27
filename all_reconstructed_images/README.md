@@ -7,7 +7,7 @@ There are four sub-folders for each scanner. And each sub-folder contains (some 
 * `product_epi_gt`: Gadgetron-reconstructed product EPI images.
 * `pulseq_epi_ice`: ICE-reconstructed Pulseq EPI images.
 * `pulseq_epi_gt`: Gadgetron-reconstructed Pulseq EPI images.
-* `product_se_ice`: ICE-reconstructed product spin-echo images.
-* `product_se_gt`: Gadgetron-reconstructed product spin-echo images.
-* `pulseq_se_ice`: ICE-reconstructed Pulseq spin-echo images.
-* `pulseq_se_gt`: Gadgetron-reconstructed Pulseq spin-echo images.
+* `product_se_ice`: ICE-reconstructed product SE images.
+* `product_se_gt`: Gadgetron-reconstructed product SE images.
+* `pulseq_se_ice`: ICE-reconstructed Pulseq SE images.
+* `pulseq_se_gt`: Gadgetron-reconstructed Pulseq SE images.
