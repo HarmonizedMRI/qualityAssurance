@@ -1,19 +1,19 @@
 # This is the instruction for post-processing.
 The example post-processing is based on the reconstructed images from Cima.X over five days.
 ## Reconstructed images from Cima.X
-**Note**: The images are too big to upload here, and can be accessed via [Zenodo](https://doi.org/10.5281/zenodo.14217778) as an alternative. All `epi` folders contain a `temporalQuality_main.m` to call the `temporalQuality.m` function for temporal quality analysis. All `se` folders contain a `structuralQuality_main.m` to call the `structuralQuality.m` function for structural quality analysis.
+**Note**: The images are too big to upload here, and can be accessed via [Zenodo](https://doi.org/10.5281/zenodo.14217778) as an alternative. All `se` folders contain a `structuralQuality_main.m` to call the `structuralQuality.m` function for structural quality analysis. All `epi` folders contain a `temporalQuality_main.m` to call the `temporalQuality.m` function for temporal quality analysis.
 * `product_epi_ice`: ICE-reconstructed product EPI images.
 * `product_epi_gt`: Gadgetron-reconstructed product EPI images.
 * `pulseq_epi_ice`: ICE-reconstructed Pulseq EPI images.
 * `pulseq_epi_gt`: Gadgetron-reconstructed Pulseq EPI images.
-* `product_se_ice`: ICE-reconstructed product spin-echo images.
-* `product_se_gt`: Gadgetron-reconstructed product spin-echo images.
-* `pulseq_se_ice`: ICE-reconstructed Pulseq spin-echo images.
-* `pulseq_se_gt`: Gadgetron-reconstructed Pulseq spin-echo images.
+* `product_se_ice`: ICE-reconstructed product SE images.
+* `product_se_gt`: Gadgetron-reconstructed product SE images.
+* `pulseq_se_ice`: ICE-reconstructed Pulseq SE images.
+* `pulseq_se_gt`: Gadgetron-reconstructed Pulseq SE images.
 ## QA analysis Matlab package: `QA_functions`
 * `circfit.m`: to find the center point and radius of the phantom.
 * `makeCircleMask.m`: to make a circular mask based on the center point and radius.
-* `structuralQuality.m`: to analyze the structural quality of the spin-echo images.
+* `structuralQuality.m`: to analyze the structural quality of the SE images.
 * `temporalQuality.m`: to analyze the temporal quality of the EPI images.
 ### Post-processing procedures
 * Step 1: Add the `QA_functions` folder to your Matlab Path.
