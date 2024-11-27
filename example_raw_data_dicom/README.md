@@ -5,6 +5,6 @@ The data and DICOM images were acquired from Cima.X on the fBIRN phantom on 06.0
 * `meas*.dat`: Siemens raw data of two EPI scans for temporal quality analysis and two spin-echo scans for structural quality analysis.
 * `*data.h5` files: the ISMRMRD data of the four raw datasets.
 * `*out.h5` files: the images reconstructed by Gadgetron.
-* `*.nii`: the nifti-format reconstructed images.
+* `*.nii`: the NIFTI-format reconstructed images.
 * `siemens2mrd_epi.m`: to convert the Siemens EPI raw data to ISMRMRD data.
-* `read_image.m`: to convert the Gadgetron-reconstructed h5-format images to nifti-format images.
+* `read_image.m`: to convert the Gadgetron-reconstructed h5-format images to NIFTI-format images.
