@@ -1,7 +1,7 @@
 # This is the instruction for post-processing.
 The example post-processing is based on the reconstructed images from Cima.X over five days.
 ## Reconstructed images from Cima.X
-**Note**: the images are too big to upload here, and can be accessed via [Zenodo](https://doi.org/10.5281/zenodo.14217778) as an alternative. All `se` folders contain a `structuralQuality_main.m` to call the `structuralQuality.m` function for structural quality analysis. All `epi` folders contain a `temporalQuality_main.m` to call the `temporalQuality.m` function for temporal quality analysis.
+**Note**: the images are too big to upload here, and can be accessed via [Zenodo](https://doi.org/10.5281/zenodo.14778552) as an alternative. All `se` folders contain a `structuralQuality_main.m` to call the `structuralQuality.m` function for structural quality analysis. All `epi` folders contain a `temporalQuality_main.m` to call the `temporalQuality.m` function for temporal quality analysis.
 * `product_epi_ice`: ICE-reconstructed product EPI images.
 * `product_epi_gt`: Gadgetron-reconstructed product EPI images.
 * `pulseq_epi_ice`: ICE-reconstructed Pulseq EPI images.
