@@ -10,5 +10,6 @@ This repository hosts materials for
 * all reconstructed images,
 * instruction for data acquisition,
 * instruction for image reconstruction,
-* instruction for post-processing, and
-* example raw data and DICOM images.
+* instruction for post-processing,
+* example raw data and DICOM images, and
+* images and scripts for T1/T2 fitting on the fBIRN phantom.
