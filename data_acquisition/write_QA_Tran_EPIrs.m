@@ -23,7 +23,7 @@ ro_os = 2 ;                   % oversampling factor (in contrast to the product 
 readoutTime = 520e-6;%770e-6 ; % default value
 
 Nslices = 1 + ~is_test * 26;
-Nrep = 1 + (~is_test & lower(vendor(1)) ~= 'g') * 199;
+Nrep = 2 + (~is_test & lower(vendor(1)) ~= 'g') * 198;
 fprintf('Nslices = %d, Nrep = %d\n', Nslices, Nrep);
 
 if lower(vendor(1)) == 'g'

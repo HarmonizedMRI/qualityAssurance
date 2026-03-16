@@ -171,7 +171,10 @@ Do **not overwrite existing `.entry` files** in the Pulseq directory.
 
 ## 4. Run the Sequences
 
-Execute the sequences on the scanner using the **pge2 interpreter**.
+Execute the sequences on the scanner using the **pge2 interpreter**, with the following settings:
+
+* EPI scan: 200 runs (opnex = 200)    
+* T1 scan: 2 runs (opnex = 2)
 
 ---
 
