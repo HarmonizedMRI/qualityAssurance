@@ -120,7 +120,28 @@ for the complete scanner procedure.
 
 GE scanners require conversion to the `pge2` format.
 
-## 1. Configure Coil Model
+## 1. Check Forbidden EPI Echo Spacings
+
+The QA EPI sequence generated in this repository uses an **echo spacing of 584 µs**.
+
+GE scanners define **“forbidden” EPI echo spacings** that correspond to gradient mechanical resonances and must be avoided. It is the responsibility of the scanner operator to ensure that the sequence echo spacing lies **outside these forbidden bands**.
+
+The forbidden spacing ranges are specified on the scanner in files located at:
+
+```
+/srv/nfs/psd/etc/epiesp*.dat
+```
+
+Please consult your **local GE representative** to determine which `epiesp*.dat` file applies to your scanner.
+
+Based on currently available information, **584 µs lies outside the forbidden bands for all current GE models**. However, these constraints may change with future hardware or software revisions.
+
+If the echo spacing used in this repository is **not compatible with your scanner**, please contact the study team so the QA sequence parameters can be adjusted accordingly.
+
+
+---
+
+## 2. Configure Coil Model
 
 Edit `set_vendor_and_system_limits.m`:
 
@@ -132,7 +153,7 @@ This is used for PNS checking.
 
 ---
 
-## 2. Convert Pulseq Files
+## 3. Convert Pulseq Files
 
 Edit options in `seq2ge.m`:
 
@@ -156,7 +177,7 @@ files that can be executed on GE scanners.
 
 ---
 
-## 3. Copy Files to the Scanner
+## 4. Copy Files to the Scanner
 
 ```
 .entry → /srv/nfs/psd/usr/psd/pulseq/v7/
@@ -169,7 +190,7 @@ Do **not overwrite existing `.entry` files** in the Pulseq directory.
 
 ---
 
-## 4. Run the Sequences
+## 5. Run the Sequences
 
 Execute the sequences on the scanner using the **pge2 interpreter**, with the following settings:
 
@@ -178,7 +199,7 @@ Execute the sequences on the scanner using the **pge2 interpreter**, with the fo
 
 ---
 
-## 5. Load the raw data
+## 6. Load the raw data
 
 ```matlab
 dat = pge2.utils.loaddata('ScanArchive_FileName.h5');
