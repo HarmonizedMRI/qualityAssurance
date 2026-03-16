@@ -1,52 +1,15 @@
 % ACR spin-echo sequence for quality control
 % transversal T1 series
 
-setvendor;
-
 % Set system limits
 max_grad = 24;    % mT/m
 max_slew = 30;   % T/m/s
 
-switch lower(vendor(1))
-    case 's'
-        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
-              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
-              'rfDeadTime', 100e-6, ... 
-              'rfRingdownTime', 20e-6, ...
-              'adcDeadTime', 20e-6, ... 
-              'B0', 2.89);                  % this is Siemens' 3T
+set_vendor_and_system_limits;
 
-    case 'g'
-        % System limits used in design.
-        % On GE, block boundaries disappear inside segments, so it may be ok
-        % to set dead/ringdown times to 0 in practice here.
-        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
-              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
-              'rfDeadTime', 100e-6, ...     % or 0
-              'rfRingdownTime', 0e-6, ...  % or 0
-              'adcDeadTime', 0e-6, ...     % or 0
-              'adcRasterTime', 2e-6, ...    % GE dwell time must be a multiple of 2us
-              'rfRasterTime', 4e-6, ...     % 2e-6, or any integer multiple thereof
-              'gradRasterTime', 4e-6, ...   % 4e-6, or any integer multiple thereof
-              'blockDurationRaster', 4e-6, ... % 4e-6, or any integer multiple thereof
-              'B0', 3.0);
+sys = sys;
 
-        % additional system limits for GE
-        psd_rf_wait  = 50e-6;   % RF–gradient delay (s), scanner-specific
-        psd_grd_wait = 50e-6;   % ADC–gradient delay (s), scanner-specific
-        b1_max   = sys.maxB1/sys.gamma/1e-4;  % Gauss
-        g_max    = max_grad/10;           % Gauss/cm
-        slew_max = max_slew/10;           % Gauss/cm/ms
-        coil     = 'xrm';        % See pge2.opts(). 'xrm' (MR750), 'hrmw' (Premier), 'magnus', ...
-        sys_ge = pge2.opts(psd_rf_wait, psd_grd_wait, b1_max, g_max, slew_max, coil);
-
-    otherwise
-        error("Vendor must be 'GE' or 'Siemens' (for now)");
-end
-
-system = sys;
-
-seq = mr.Sequence(system) ;              % Create a new sequence object
+seq = mr.Sequence(sys) ;              % Create a new sequence object
 adcDur = 2*2.56e-3 ; 
 disp(['readout bandwidht = ', num2str(1/adcDur), ' Hz/pixel']) ;
 rfDur1 = 3e-3 ;
@@ -72,12 +35,12 @@ sth_ref = 1 ;
 % its area from the first (left) spoiler
 [rf_ex, gz, gzr] = mr.makeSLRpulse(pi/2,'duration',rfDur1,'SliceThickness',sliceThickness*sth_ex,...
     'timeBwProduct',5,'dwell',rfDur1/500,'passbandRipple',1,'stopbandRipple',1e-2,...
-    'filterType','ms','system',system,'use','excitation', 'PhaseOffset' ,pi/2); % MZ: other RF cycle
+    'filterType','ms','system',sys,'use','excitation', 'PhaseOffset' ,pi/2); % MZ: other RF cycle
 
 % Create non-selective refocusing pulse
 [rf_ref, g_ref] =  mr.makeSLRpulse(pi,'duration',rfDur2,'SliceThickness',sliceThickness*sth_ref,...
     'timeBwProduct',6,'dwell',rfDur2/500,'passbandRipple',1,'stopbandRipple',1e-2,...
-    'filterType','ms','system',system,'use','refocusing', 'PhaseOffset' ,0); % MZ: other RF cycle
+    'filterType','ms','system',sys,'use','refocusing', 'PhaseOffset' ,0); % MZ: other RF cycle
 
 % check RF profile alighnment
 [M_z90,M_xy90,F2_90]=mr.simRf(rf_ex);
@@ -96,21 +59,21 @@ disp(['The peak rf_ex amplitude = ', num2str(rf_ex_peak), ' uT']) ;
 disp(['The peak rf_ref amplitude = ', num2str(rf_ref_peak), ' uT']) ;
 
 % join spoilers with the slice selection pulses of the refocusing gradients
-g_ref_pre = mr.makeExtendedTrapezoidArea(g_ref.channel, 0, g_ref.amplitude, spAz+gzr.area, system) ;
-g_ref_post = mr.makeExtendedTrapezoidArea(g_ref.channel, g_ref.amplitude, 0, spAz, system) ;
+g_ref_pre = mr.makeExtendedTrapezoidArea(g_ref.channel, 0, g_ref.amplitude, spAz+gzr.area, sys) ;
+g_ref_post = mr.makeExtendedTrapezoidArea(g_ref.channel, g_ref.amplitude, 0, spAz, sys) ;
 g_refC = mr.makeExtendedTrapezoid(g_ref_pre.channel, ...
     'times', [g_ref_pre.tt g_ref_post.tt+g_ref_pre.shape_dur+g_ref.flatTime],...
-    'amplitudes', [g_ref_pre.waveform g_ref_post.waveform], 'system', system) ;
+    'amplitudes', [g_ref_pre.waveform g_ref_post.waveform], 'system', sys) ;
 rf_ref.delay = g_ref_pre.shape_dur ;
 % calculate spoiler gradients in x- and y-directions
 % Gx spoilers before and after refocusing gradient
-g_SPx_pre = mr.makeTrapezoid('x', 'Area', spAx, 'system', system) ;
-g_SPx_post = mr.makeTrapezoid('x', 'Area', spAx, 'system', system, 'delay', mr.calcDuration(g_SPx_pre)+g_ref.flatTime) ;
-g_SPx = mr.addGradients({g_SPx_pre, g_SPx_post},'system', system) ;
+g_SPx_pre = mr.makeTrapezoid('x', 'Area', spAx, 'system', sys) ;
+g_SPx_post = mr.makeTrapezoid('x', 'Area', spAx, 'system', sys, 'delay', mr.calcDuration(g_SPx_pre)+g_ref.flatTime) ;
+g_SPx = mr.addGradients({g_SPx_pre, g_SPx_post},'system', sys) ;
 % Gy spoilers before and after refocusing gradient
-g_SPy_pre = mr.makeTrapezoid('y', 'Area', spAy, 'system', system) ;
-g_SPy_post = mr.makeTrapezoid('y', 'Area', spAy, 'system', system, 'delay', mr.calcDuration(g_SPy_pre)+g_ref.flatTime) ;
-g_SPy = mr.addGradients({g_SPy_pre, g_SPy_post},'system', system) ;
+g_SPy_pre = mr.makeTrapezoid('y', 'Area', spAy, 'system', sys) ;
+g_SPy_post = mr.makeTrapezoid('y', 'Area', spAy, 'system', sys, 'delay', mr.calcDuration(g_SPy_pre)+g_ref.flatTime) ;
+g_SPy = mr.addGradients({g_SPy_pre, g_SPy_post},'system', sys) ;
 % update delays
 if (mr.calcDuration(g_ref_pre) > mr.calcDuration(g_SPx_pre, g_SPy_pre))
     g_SPx.delay = g_SPx.delay + mr.calcDuration(g_ref_pre) - mr.calcDuration(g_SPx_pre) ;
@@ -122,19 +85,19 @@ end
 
 % Define delays and ADC events
 deltak = 1/fov ;
-gr = mr.makeTrapezoid('x', system, 'FlatArea', Nx*deltak, 'FlatTime', ceil(adcDur/system.gradRasterTime)*system.gradRasterTime) ;
-adc = mr.makeAdc(Nx*ro_os, system, 'Duration', adcDur, 'delay', gr.riseTime) ;
+gr = mr.makeTrapezoid('x', sys, 'FlatArea', Nx*deltak, 'FlatTime', ceil(adcDur/sys.gradRasterTime)*sys.gradRasterTime) ;
+adc = mr.makeAdc(Nx*ro_os, sys, 'Duration', adcDur, 'delay', gr.riseTime) ;
 disp(['ADC dwell time = ', num2str(adc.dwell*1e6), ' us']) ;
 
 grPredur = mr.calcDuration(g_ref_post) ; % use a fixed time to make this gradient visible on the plot
-grPre = mr.makeTrapezoid('x', 'system', system, 'Area', -(gr.area/2+deltak/2), 'Duration', grPredur, 'delay', mr.calcDuration(g_refC)-mr.calcDuration(g_ref_post) ) ;  % we need this "deltak/2" because of the ADC sampling taking place in the middle of the dwell time
+grPre = mr.makeTrapezoid('x', 'system', sys, 'Area', -(gr.area/2+deltak/2), 'Duration', grPredur, 'delay', mr.calcDuration(g_refC)-mr.calcDuration(g_ref_post) ) ;  % we need this "deltak/2" because of the ADC sampling taking place in the middle of the dwell time
 phaseAreas = ((0:Ny-1)-Ny/2)*deltak ;
 PEscale = phaseAreas / max(abs(phaseAreas)) ;
-gyPre = mr.makeTrapezoid('y','Area', -max(abs(phaseAreas)), 'Duration', grPredur,'system', system, 'delay', mr.calcDuration(g_refC)-mr.calcDuration(g_ref_post) ) ;
+gyPre = mr.makeTrapezoid('y','Area', -max(abs(phaseAreas)), 'Duration', grPredur,'system', sys, 'delay', mr.calcDuration(g_refC)-mr.calcDuration(g_ref_post) ) ;
 
-gyPost = mr.makeTrapezoid('y','Area', max(abs(phaseAreas)), 'Duration', grPredur,'system', system) ;
-gx_spoil = mr.makeTrapezoid('x','Area', spAx,'system', system ) ; %, 'Duration', mr.calcDuration(gy)
-gz_spoil = mr.makeTrapezoid('z','Area', spAz,'system', system ) ; %, 'Duration', mr.calcDuration(gy)
+gyPost = mr.makeTrapezoid('y','Area', max(abs(phaseAreas)), 'Duration', grPredur,'system', sys) ;
+gx_spoil = mr.makeTrapezoid('x','Area', spAx,'system', sys ) ; %, 'Duration', mr.calcDuration(gy)
+gz_spoil = mr.makeTrapezoid('z','Area', spAz,'system', sys ) ; %, 'Duration', mr.calcDuration(gy)
 
 % slice positions
 slicePositions = (sliceThickness + sliceGap)*((0:(Nslices-1)) - (Nslices-1)/2) ;
@@ -145,11 +108,11 @@ delayTE1 = TE/2 - ( mr.calcDuration(gz) - rf_ex.shape_dur/2 - rf_ex.delay) ...
     - mr.calcDuration(g_refC) + g_ref.flatTime/2 + mr.calcDuration(g_ref_post) ;
 delayTE2 = TE/2 - g_ref.flatTime/2 - mr.calcDuration(g_ref_post) - mr.calcDuration(gr)/2 ;
 delayTR = TR - Nslices * ( rf_ex.delay + rf_ex.shape_dur/2 + TE + mr.calcDuration(gr)/2 + mr.calcDuration(gyPost, gx_spoil, gz_spoil)) ;
-delayTR_1slice = ceil(delayTR/Nslices/system.blockDurationRaster) * system.blockDurationRaster ;
+delayTR_1slice = ceil(delayTR/Nslices/sys.blockDurationRaster) * sys.blockDurationRaster ;
 
-delayTE1 = round(delayTE1 / system.gradRasterTime) * system.gradRasterTime ;
-delayTE2 = round(delayTE2 / system.gradRasterTime) * system.gradRasterTime ;
-delayTR_1slice = round(delayTR_1slice / system.gradRasterTime) * system.gradRasterTime ;
+delayTE1 = round(delayTE1 / sys.gradRasterTime) * sys.gradRasterTime ;
+delayTE2 = round(delayTE2 / sys.gradRasterTime) * sys.gradRasterTime ;
+delayTR_1slice = round(delayTR_1slice / sys.gradRasterTime) * sys.gradRasterTime ;
 
 assert(delayTE1 >= 0) ;
 assert(delayTE2 >= 0) ;
@@ -175,10 +138,15 @@ end
 
 % seq.addBlock(mr.makeLabel('SET','REP', 0)) ;
 for r=1:Nrep
-    seq.addBlock(mr.makeLabel('SET','LIN', 0) ) ;
+    if ~sys.flag_trid
+        % including this would interfere with segment definitions (TRIDs)
+        seq.addBlock(mr.makeLabel('SET','LIN', 0) ) ;
+    end
     for i=(1-Ndummy):Ny
         % loop over slices
-        seq.addBlock(mr.makeLabel('SET','SLC', 0)) ;
+        if ~sys.flag_trid
+            seq.addBlock(mr.makeLabel('SET','SLC', 0)) ;
+        end
         for s=1:Nslices
             % MZ: we alternate RF phase for the RF excitation and ADC with the i-counter
             adc.phaseOffset = mod(i,2)*pi;
@@ -212,11 +180,13 @@ for r=1:Nrep
             seq.addBlock(mr.makeDelay(delayTR_1slice)) ;
         end
         % seq.addBlock(mr.makeDelay(delayTR)) ;
-        if (i>0)
+        if (i>0 & ~sys.flag_trid)
             seq.addBlock(mr.makeLabel('INC', 'LIN', 1)) ;
         end
     end
-    seq.addBlock(mr.makeLabel('INC','REP', 1)) ;
+    if ~sys.flag_trid
+        seq.addBlock(mr.makeLabel('INC','REP', 1)) ;
+    end
 end
 
 % show the first non-dummy TR with the block structure

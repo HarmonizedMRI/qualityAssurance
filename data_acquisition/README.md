@@ -7,15 +7,13 @@
 
 ## Setup
 
-### Get Pulseq toolbox
+### MATLAB
 
-In MATLAB:
 ```matlab
-system('git clone --branch master git@github.com:pulseq/pulseq.git');
-addpath pulseq/matlab
+>> setup
 ```
 
-### Set up Python environment (for `mr.makeSLRpulse`)
+### Python environment (for `mr.makeSLRpulse`)
 
 On Linux command line:
 ```bash
@@ -27,12 +25,13 @@ pip install scipy
 pip install sigpy
 ```
 
+Then start MATLAB from within that environment.
 
 
-## GE users
+## GE user workflow
 
 In MATLAB:
-1. Set `vendor` to `'GE'` in `setvendor.m`
+1. Set `vendor` to `'GE'` in `set_vendor_and_system_limits.m`
 2. Execute the `write*.m` scripts.
 3. Set the desired options in `seq2ge.m`:
    1. Set `scanner_pge_location` to the directory on the scanner where you

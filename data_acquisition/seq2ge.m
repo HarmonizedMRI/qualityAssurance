@@ -1,18 +1,5 @@
 % Convert .seq files to .pge binary files for execution on GE
 
-% get toolbox to convert .seq file to a PulSeg sequence (psq) object
-system('git clone git@github.com:HarmonizedMRI/pulseg.git');
-addpath pulseg/matlab
-addpath(genpath('pulseg/matlab/third_party'));
-
-% get toolbox for plotting psq object and exporting to binary file for GE 
-system('git clone git@github.com:HarmonizedMRI/pge2.git');
-addpath pge2/matlab
-
-% To load the ScanArchive raw data files you will need the Orchestra toolbox
-% which is available for download at http://weconnect.gehealthcare.com/ 
-% addpath ~/Programs/orchestra-sdk-2.1-1.matlab/
-
 % Options
 scanner_pge_location = '/export/home/sdc/PulseqQA/';
 opuser1 = [21];     % Determines .entry file number, i.e., pge<opuser1>.entry
