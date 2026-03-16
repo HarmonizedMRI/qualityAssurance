@@ -6,7 +6,7 @@
 
 % general script options
 is_test = true;  % If true: 1 slice, Nrep = 1
-vendor = 'g' ;
+setvendor;
 
 % Set system limits
 max_grad = 32;    % mT/m

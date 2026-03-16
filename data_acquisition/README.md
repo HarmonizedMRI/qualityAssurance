@@ -4,3 +4,7 @@
 * `20241122_QA_protocol_instruction_siemens.docx`: standard operating procedure for QA measurements.
 * `QA_record.xlsx`: Excel sheet for the record of QA measurements.
 * `QA_MAGMA.pdf`: product and Pulseq-based sequence protocols on Cima.X for quality assurance.
+
+## GE users
+
+1. Set `vendor` to `GE` in `setvendor.m`
