@@ -7,4 +7,10 @@
 
 ## GE users
 
-1. Set `vendor` to `GE` in `setvendor.m`
+1. Set `vendor` to `'GE'` in `setvendor.m`
+2. Execute the `write*.m` scripts.
+3. Set the desired options in `seg2ge.m` and run it.
+   This will create `.pge` and `.entry` files that can be executed on GE with the 
+   [pge2](https://github.com/HarmonizedMRI/SequenceExamples-GE/tree/main/pge2)
+   GE interpreter.
+
