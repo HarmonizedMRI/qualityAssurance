@@ -5,7 +5,7 @@
 % gradients combined with ramp-samping
 
 % general script options
-is_test = true;  % If true: 1 slice, Nrep = 1
+is_test = false;  % If true: 1 slice, Nrep = 1
 
 % Set system limits
 max_grad = 32;    % mT/m

@@ -2,7 +2,7 @@
 % transversal T1 series
 
 % general script options
-is_test = true;  % If true: 1 slice, Nrep = 1
+is_test = false;  % If true: 1 slice, Nrep = 1
 do_plot = false;
 
 % Set system limits
