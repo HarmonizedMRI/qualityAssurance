@@ -7,7 +7,7 @@ scans = {'QA_epi_final.seq', 'QA_T1_final.seq'};
 pislquant = [100 100];  % number of ADC events to use for receive gain calibration in Auto Prescan
 opuser1 = [21 22];     % Determines .entry file number, i.e., pge<opuser1>.entry
 
-for s = 1 %: length(scans)
+for s = 1:length(scans)
     fprintf('\nConverting %s.seq to .pge file:\n', scans{s});
 
     seq_name = erase(scans{s}, {'.seq'});
@@ -38,6 +38,7 @@ for s = 1 %: length(scans)
 
     % (Optional) Validate psq representation against the original .seq file
     pge2.validate(psq, sys_ge_tmp, seq, [], 'row', [], 'plot', false);
+    %pge2.validate(psq, sys_ge_tmp, seq, '~/transfer/xml/QA/t1', 'row', [], 'plot', false);
 
     % (Optional) Save psq object as .mat file for Matlab runtime based scanner workflow,
     % see https://github.com/HarmonizedMRI/pge2/tree/main/scanner/fov_prescription for details.
