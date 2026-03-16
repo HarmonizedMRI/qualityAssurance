@@ -173,8 +173,16 @@ Do **not overwrite existing `.entry` files** in the Pulseq directory.
 
 Execute the sequences on the scanner using the **pge2 interpreter**, with the following settings:
 
-* EPI scan: 200 runs (opnex = 200)    
+* EPI scan: 100 runs (opnex = 100)    
 * T1 scan: 2 runs (opnex = 2)
+
+---
+
+## 5. Load the raw data
+
+```matlab
+dat = pge2.utils.loaddata('ScanArchive_FileName.h5');
+```
 
 ---
 
