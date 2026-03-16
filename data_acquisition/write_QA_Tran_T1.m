@@ -6,7 +6,7 @@ system = mr.opts('MaxGrad',24,'GradUnit','mT/m',...
     'rfRingdownTime', 20e-6, 'rfDeadtime', 100e-6,...
     'adcDeadTime', 20e-6, 'B0', 2.89 ... % this is Siemens' 3T
 );
-vendor = 'siemens' ;
+vendor = 'ge' ;
 seq = mr.Sequence(system) ;              % Create a new sequence object
 adcDur = 2*2.56e-3 ; 
 disp(['readout bandwidht = ', num2str(1/adcDur), ' Hz/pixel']) ;
@@ -155,9 +155,11 @@ for r=1:Nrep
             seq.addBlock(rf_ex, gz) ;
             seq.addBlock(mr.makeDelay(delayTE1)) ;
             if (i>0) % semi-negative index -- dummy scans
-                seq.addBlock(rf_ref, g_refC, g_SPx, g_SPy, grPre, mr.scaleGrad(gyPre, PEscale(i))) ;
+                % seq.addBlock(rf_ref, g_refC, g_SPx, g_SPy, grPre, mr.scaleGrad(gyPre, PEscale(i))) ;
+                seq.addBlock(rf_ref, g_refC, grPre, mr.scaleGrad(gyPre, PEscale(i))) ;
             else
-                seq.addBlock(rf_ref, g_refC, g_SPx, g_SPy, grPre) ;
+                % seq.addBlock(rf_ref, g_refC, g_SPx, g_SPy, grPre) ;
+                seq.addBlock(rf_ref, g_refC, grPre) ;
             end
             seq.addBlock(mr.makeDelay(delayTE2));
             if (i>0) % semi-negative index -- dummy scans
@@ -210,7 +212,7 @@ seq.setDefinition('SliceGap', sliceGap);
 seq.setDefinition('ReadoutOversamplingFactor', ro_os) ;
 seq.setDefinition('ReceiverGainHigh',1);
 
-seq.write('QA_T1.seq')       % Write to pulseq file
+seq.write('QA_T1_final.seq')       % Write to pulseq file
 %seq.install('siemens');    % copy to scanner
 return ;
 %% calculate k-space but only use it to check timing

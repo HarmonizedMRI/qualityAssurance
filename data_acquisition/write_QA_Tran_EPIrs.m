@@ -10,7 +10,7 @@ sys = mr.opts('MaxGrad',32,'GradUnit','mT/m',...
     'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6,...
     'adcDeadTime', 10e-6, 'B0', 2.89 ... % this is Siemens' 3T
 ) ;
-vendor = 'siemens' ;
+vendor = 'ge' ;
 seq = mr.Sequence(sys) ;      % Create a new sequence object
 fov = 220e-3 ; Nx = 64 ; Ny = Nx ;  % Define FOV and resolution
 thickness = 4e-3 ;            % slice thinckness in mm
@@ -346,9 +346,9 @@ seq.setDefinition('SliceGap', sliceGap);
 seq.setDefinition('ReceiverGainHigh',1);
 seq.setDefinition('ReadoutOversamplingFactor',ro_os);
 seq.setDefinition('TargetGriddedSamples',adc.numSamples); % number of samples after gridding (with oversamping)
-seq.setDefinition('TrapezoidGriddingParameters', [gx.riseTime gx.flatTime gx.fallTime adc.delay-gx.delay adc.duration]); % rise,flat,fall,adc_delay,adc_dur
+seq.setDefinition('TrapezoidGriddingParameters', [gx.riseTime gx.flatTime gx.fallTime adc.delay-gx.delay adc.numSamples*adc.dwell]); % rise,flat,fall,adc_delay,adc_dur
 
-seq.write('QA_epi.seq');
+seq.write('QA_epi_final.seq');
 
 seq.plot('showBlocks', 1, 'timeRange', TR*([0 1]), 'timeDisp', 'us', 'stacked', 1) ;
 
