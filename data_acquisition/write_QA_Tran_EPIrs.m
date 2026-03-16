@@ -10,9 +10,9 @@ is_test = true;  % If true: 1 slice, Nrep = 1
 % Set system limits
 max_grad = 32;    % mT/m
 max_slew = 130;   % T/m/s
-
 set_vendor_and_system_limits;
 
+% Sequence parameters
 seq = mr.Sequence(sys) ;      % Create a new sequence object
 fov = 220e-3 ; Nx = 64 ; Ny = Nx ;  % Define FOV and resolution
 thickness = 4e-3 ;            % slice thickness in m
@@ -23,7 +23,7 @@ ro_os = 2 ;                   % oversampling factor (in contrast to the product 
 readoutTime = 520e-6;%770e-6 ; % default value
 
 Nslices = 1 + ~is_test * 26;
-Nrep = 1 + (~is_test & lower(vendor(1)) == 's') * 199;
+Nrep = 1 + (~is_test & lower(vendor(1)) ~= 'g') * 199;
 fprintf('Nslices = %d, Nrep = %d\n', Nslices, Nrep);
 
 if lower(vendor(1)) == 'g'
@@ -245,7 +245,7 @@ tic ;
 % seq.addBlock(mr.makeLabel('SET','REP', 0)) ;
 for r=1:Nrep
     disp(['current repetition = ', num2str(r), '/', num2str(Nrep)]) ;
-    if lower(vendor(1)) ~= 'g'
+    if ~sys.flag_trid
         % can't have segment of zero duration
         seq.addBlock(lblResetSLC ) ;
     end

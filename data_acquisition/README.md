@@ -7,13 +7,9 @@
 
 ## Setup
 
-### MATLAB
+### Set up Python environment 
 
-```matlab
->> setup
-```
-
-### Python environment (for `mr.makeSLRpulse`)
+Need for `mr.makeSLRpulse` call.
 
 On Linux command line:
 ```bash
@@ -27,13 +23,33 @@ pip install sigpy
 
 Then start MATLAB from within that environment.
 
+### Set MATLAB paths
 
-## GE user workflow
+From inside MATLAB:
+```matlab
+>> setup
+```
 
-In MATLAB:
-1. Set `vendor` to `'GE'` in `set_vendor_and_system_limits.m`
-2. Execute the `write*.m` scripts.
-3. Set the desired options in `seq2ge.m`:
+
+## Usage
+
+1. Edit `set_vendor_and_system_limits.m`:
+   1. Set `vendor` to `'Siemens'` or `'GE'`
+   3. Set any other scanner-specific system settings if needed.
+
+2. Set paths and execute the `write*.m` scripts:
+   ```matlab
+   >> write_QA_Tran_EPIrs
+   >> write_QA_Tran_T1
+   ```
+
+### Additional steps for GE users
+
+1. In `set_vendor_and_system_limits.m`, set `'coil'` to the appropriate for your scanner (used to check PNS), e.g., 
+   ```matlab
+   coil = 'xrm';   % MR750
+   ```
+1. Set the desired options in `seq2ge.m`:
    1. Set `scanner_pge_location` to the directory on the scanner where you
    wish to put the `.pge` files.
    2. Set `opuser1` to control the desired `.entry` file names. 

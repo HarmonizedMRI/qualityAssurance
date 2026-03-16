@@ -1,17 +1,19 @@
 % ACR spin-echo sequence for quality control
 % transversal T1 series
 
+% general script options
+is_test = true;  % If true: 1 slice, Nrep = 1
+do_plot = false;
+
 % Set system limits
 max_grad = 24;    % mT/m
 max_slew = 30;   % T/m/s
-
 set_vendor_and_system_limits;
 
-sys = sys;
-
+% Sequence parameters
 seq = mr.Sequence(sys) ;              % Create a new sequence object
 adcDur = 2*2.56e-3 ; 
-disp(['readout bandwidht = ', num2str(1/adcDur), ' Hz/pixel']) ;
+disp(['readout bandwidth = ', num2str(1/adcDur), ' Hz/pixel']) ;
 rfDur1 = 3e-3 ;
 rfDur2 = 8.8e-3 ;
 TR = 500e-3 ;
@@ -22,11 +24,13 @@ spAz = 1500 ; % spoiler area in 1/m (=Hz/m*s) % MZ: need 5000 for my oil phantom
 ro_os = 2 ;
 sliceThickness = 5e-3 ;            % slice thickness
 sliceGap = 5e-3 ;               % slice gap
-Nslices = 11 ;
 fov=250e-3 ; Nx = 256 ;             % Define FOV and resolution
 Ny = Nx ;                          % number of radial spokes
 Ndummy = 5 ;                    % number of dummy scans
-Nrep = 2 ;                      % averages
+%Nrep = 2 ;                      % averages
+Nslices = 1 + ~is_test * 10;
+Nrep = 1 + (~is_test & lower(vendor(1)) ~= 'g') * 1;   % averages
+fprintf('Nslices = %d, Nrep = %d\n', Nslices, Nrep);
 % correction factors RF
 sth_ex = 1 ;
 sth_ref = 1 ;
@@ -34,21 +38,23 @@ sth_ref = 1 ;
 % refocusing gradient; we will not use the latter however but will subtract 
 % its area from the first (left) spoiler
 [rf_ex, gz, gzr] = mr.makeSLRpulse(pi/2,'duration',rfDur1,'SliceThickness',sliceThickness*sth_ex,...
-    'timeBwProduct',5,'dwell',rfDur1/500,'passbandRipple',1,'stopbandRipple',1e-2,...
+    'timeBwProduct',5,'dwell', sys.rfRasterTime,'passbandRipple',1,'stopbandRipple',1e-2,...
     'filterType','ms','system',sys,'use','excitation', 'PhaseOffset' ,pi/2); % MZ: other RF cycle
 
 % Create non-selective refocusing pulse
 [rf_ref, g_ref] =  mr.makeSLRpulse(pi,'duration',rfDur2,'SliceThickness',sliceThickness*sth_ref,...
-    'timeBwProduct',6,'dwell',rfDur2/500,'passbandRipple',1,'stopbandRipple',1e-2,...
+    'timeBwProduct',6,'dwell', sys.rfRasterTime,'passbandRipple',1,'stopbandRipple',1e-2,...
     'filterType','ms','system',sys,'use','refocusing', 'PhaseOffset' ,0); % MZ: other RF cycle
 
-% check RF profile alighnment
+% check RF profile alignment
 [M_z90,M_xy90,F2_90]=mr.simRf(rf_ex);
 sl_th_90=mr.aux.findFlank(F2_90(end:-1:1)/gz.amplitude,abs(M_xy90(end:-1:1)),0.5)-mr.aux.findFlank(F2_90/gz.amplitude,abs(M_xy90),0.5);
 [M_z180,M_xy180,F2_180,ref_eff]=mr.simRf(rf_ref);
 sl_th_180=mr.aux.findFlank(F2_180(end:-1:1)/g_ref.amplitude,abs(ref_eff(end:-1:1)),0.5)-mr.aux.findFlank(F2_180/g_ref.amplitude,abs(ref_eff),0.5);
-figure; plot(F2_90/gz.amplitude*1000,abs(M_xy90)); title('RF profiles'); xlabel('through-slice pos, mm');
-hold on; plot(F2_180/g_ref.amplitude*1000,abs(ref_eff)); legend('ex (Mxy)','ref (ref-eff)');
+if do_plot
+    figure; plot(F2_90/gz.amplitude*1000,abs(M_xy90)); title('RF profiles'); xlabel('through-slice pos, mm');
+    hold on; plot(F2_180/g_ref.amplitude*1000,abs(ref_eff)); legend('ex (Mxy)','ref (ref-eff)');
+end
 fprintf('slice thicknes 90-degree excitation pulse: %.3f mm\n',sl_th_90*1e3);
 fprintf('slice thicknes 180-degree refocusing pulse: %.3f mm\n',sl_th_180*1e3);
 
@@ -159,6 +165,11 @@ for r=1:Nrep
             rf_ex.phaseOffset = mod(i,2)*pi+pi/2 -2*pi*rf_ex.freqOffset*mr.calcRfCenter(rf_ex) ; % compensate for the slice-offset induced phase, unit radian (2*pi radians in a circle)
             rf_ref.phaseOffset = -2*pi*rf_ref.freqOffset*mr.calcRfCenter(rf_ref) ;
             
+            if i > 0
+                seq.addTRID('acquire');
+            else
+                seq.addTRID('dummy');
+            end
             seq.addBlock(rf_ex, gz) ;
             seq.addBlock(mr.makeDelay(delayTE1)) ;
             if (i>0) % semi-negative index -- dummy scans
@@ -191,7 +202,9 @@ end
 
 % show the first non-dummy TR with the block structure
 %seq.plot('showBlocks', 1, 'timeRange', TR*(Ndummy+[0 2]), 'timeDisp', 'us') ;
-seq.plot('showBlocks', 1, 'timeRange', TR*(Ndummy+[0 1]), 'timeDisp', 'us', 'stacked', 1) ;
+if do_plot
+    seq.plot('showBlocks', 1, 'timeRange', TR*(Ndummy+[0 1]), 'timeDisp', 'us', 'stacked', 1) ;
+end
 % check whether the timing of the sequence is compatible with the scanner
 [ok, error_report] = seq.checkTiming ;
 
@@ -205,12 +218,14 @@ end
 
 %% evaluate label settings more specifically
 %seq.plot('timeRange', [0 32]*TRout, 'TimeDisp', 'ms', 'Label', 'LIN');
-adc_lbl=seq.evalLabels('evolution','adc');
-figure; plot(adc_lbl.REP);
-hold on; plot(adc_lbl.SLC);
-plot(adc_lbl.LIN) ;
-legend('REF','SLC', 'LIN');
-title('evolution of labels/counters');
+if do_plot
+    adc_lbl=seq.evalLabels('evolution','adc');
+    figure; plot(adc_lbl.REP);
+    hold on; plot(adc_lbl.SLC);
+    plot(adc_lbl.LIN) ;
+    legend('REF','SLC', 'LIN');
+    title('evolution of labels/counters');
+end
 %%
 seq.setDefinition('Name', 'QA_T1');
 seq.setDefinition('FOV', [fov fov max(slicePositions)-min(slicePositions)+sliceThickness]);
@@ -224,6 +239,7 @@ seq.setDefinition('ReceiverGainHigh',1);
 seq.write('QA_T1_final.seq')       % Write to pulseq file
 %seq.install('siemens');    % copy to scanner
 return ;
+
 %% calculate k-space but only use it to check timing
 [ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP;%('blockRange',[1,150]);
 %[ktraj_adc, t_adc, ktraj, t_ktraj, t_excitation, t_refocusing] = seq.calculateKspacePP('trajectory_delay',[0 0 0]*1e-6); % play with anisotropic trajectory delays -- zoom in to see the trouble ;-)
