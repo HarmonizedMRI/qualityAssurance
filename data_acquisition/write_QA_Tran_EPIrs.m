@@ -4,33 +4,79 @@
 % which uses split gradients to overlap blips with the readout
 % gradients combined with ramp-samping
 
+% general script options
+is_test = true;  % If true: 1 slice, Nrep = 1
+vendor = 'g' ;
+
 % Set system limits
-sys = mr.opts('MaxGrad',32,'GradUnit','mT/m',...
-    'MaxSlew',130,'SlewUnit','T/m/s',...
-    'rfRingdownTime', 30e-6, 'rfDeadtime', 100e-6,...
-    'adcDeadTime', 10e-6, 'B0', 2.89 ... % this is Siemens' 3T
-) ;
-vendor = 'ge' ;
+max_grad = 32;    % mT/m
+max_slew = 130;   % T/m/s
+
+switch lower(vendor(1))
+    case 's'
+        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
+              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
+              'rfDeadTime', 100e-6, ... 
+              'rfRingdownTime', 30e-6, ...
+              'adcDeadTime', 10e-6, ... 
+              'B0', 2.89);                  % this is Siemens' 3T
+
+    case 'g'
+        % System limits used in design.
+        % On GE, block boundaries disappear inside segments, so it may be ok
+        % to set dead/ringdown times to 0 in practice here.
+        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
+              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
+              'rfDeadTime', 100e-6, ...     % or 0
+              'rfRingdownTime', 0e-6, ...  % or 0
+              'adcDeadTime', 0e-6, ...     % or 0
+              'adcRasterTime', 2e-6, ...    % GE dwell time must be a multiple of 2us
+              'rfRasterTime', 4e-6, ...     % 2e-6, or any integer multiple thereof
+              'gradRasterTime', 4e-6, ...   % 4e-6, or any integer multiple thereof
+              'blockDurationRaster', 4e-6, ... % 4e-6, or any integer multiple thereof
+              'B0', 3.0);
+
+        % additional system limits for GE
+        psd_rf_wait  = 50e-6;   % RF–gradient delay (s), scanner-specific
+        psd_grd_wait = 50e-6;   % ADC–gradient delay (s), scanner-specific
+        b1_max   = sys.maxB1/sys.gamma/1e-4;  % Gauss
+        g_max    = max_grad/10;           % Gauss/cm
+        slew_max = max_slew/10;           % Gauss/cm/ms
+        coil     = 'xrm';        % See pge2.opts(). 'xrm' (MR750), 'hrmw' (Premier), 'magnus', ...
+        sys_ge = pge2.opts(psd_rf_wait, psd_grd_wait, b1_max, g_max, slew_max, coil);
+
+    otherwise
+        error("Vendor must be 'GE' or 'Siemens' (for now)");
+end
+
 seq = mr.Sequence(sys) ;      % Create a new sequence object
 fov = 220e-3 ; Nx = 64 ; Ny = Nx ;  % Define FOV and resolution
-thickness = 4e-3 ;            % slice thinckness in mm
-sliceGap = 1e-3 ;             % slice gap im mm
-Nslices = 27 ;
-Nrep = 200 ;
-TR = 2 ;
+thickness = 4e-3 ;            % slice thickness in m
+sliceGap = 1e-3 ;             % slice gap im m
+TR = 2;
 pe_enable = 1 ;               % a flag to quickly disable phase encoding (1/0) as needed for the delay calibration
 ro_os = 2 ;                   % oversampling factor (in contrast to the product sequence we don't really need it)
 readoutTime = 520e-6;%770e-6 ; % default value
 
+Nslices = 1 + ~is_test * 26;
+Nrep = 1 + (~is_test & lower(vendor(1)) == 's') * 199;
+fprintf('Nslices = %d, Nrep = %d\n', Nslices, Nrep);
+
+if lower(vendor(1)) == 'g'
+    % Subtract segment dead/ringdown times from TR
+    TR = TR  - sys.blockDurationRaster * round((sys_ge.segment_dead_time + sys_ge.segment_ringdown_time)/sys.blockDurationRaster)
+end
+
 readoutBW = 1/readoutTime ; % readout bandwidth
 disp(['Readout bandwidth = ', num2str(readoutBW), ' Hz/Px']) ;
 partFourierFactor=1;       % partial Fourier factor: 1: full sampling 0: start with ky=0
-Nnav=3;		   % navigator echoes for ghost supprerssion
+Nnav=3;		   % navigator echoes for ghost suppression
 
 % Create fat-sat pulse 
 sat_ppm=-3.45;
 sat_freq=sat_ppm*1e-6*sys.B0*sys.gamma;
-rf_fs = mr.makeGaussPulse(110*pi/180,'system',sys,'Duration',8e-3,'dwell',10e-6,...
+%rf_fs = mr.makeGaussPulse(110*pi/180,'system',sys,'Duration',8e-3,'dwell',10e-6,...
+rf_fs = mr.makeGaussPulse(110*pi/180,'system',sys,'Duration',8e-3,'dwell',sys.gradRasterTime,...
     'bandwidth',abs(sat_freq),'freqOffset',sat_freq,'use','saturation') ;
 rf_fs.phaseOffset=-2*pi*rf_fs.freqOffset*mr.calcRfCenter(rf_fs) ; % compensate for the frequency-offset induced phase    
 % gz_fs = mr.makeTrapezoid('z',sys,'delay',mr.calcDuration(rf_fs),'Area',0.1/1e-4); % spoil up to 0.1mm
@@ -60,7 +106,7 @@ deltak=1/fov;
 kWidth = Nx*deltak;
 
 % Phase blip in shortest possible time
-blip_dur = ceil(2*sqrt(deltak/sys.maxSlew)/10e-6/2)*10e-6*2; % we round-up the duration to 2x the gradient raster time
+blip_dur = ceil(2*sqrt(deltak/sys.maxSlew)/sys.gradRasterTime/2)*sys.gradRasterTime*2; % we round-up the duration to 2x the gradient raster time
 % the split code below fails if this really makes a trpezoid instead of a triangle...
 gy = mr.makeTrapezoid('y',sys,'Area',-deltak,'Duration',blip_dur); % we use negative blips to save one k-space line on our way towards the k-space center
 %gy = mr.makeTrapezoid('y',lims,'amplitude',deltak/blip_dur*2,'riseTime',blip_dur/2, 'flatTime', 0);
@@ -95,7 +141,7 @@ adcDwell=floor(readoutTime/adcSamples*1e7)*1e-7;
 disp(['ADC bandwidth = ', num2str(1/adcDwell/1000), ' kHz']) ;
 fprintf('Actual RO oversampling factor is %g, Siemens recommends it to be above 1.3\n', deltak/gx.amplitude/adcDwell)
 % MZ: no idea, whether ceil,round or floor is better for the adcSamples...
-adc = mr.makeAdc(adcSamples,'Dwell',adcDwell,'Delay',blip_dur/2);
+adc = mr.makeAdc(adcSamples, sys, 'Dwell',adcDwell,'Delay',blip_dur/2);
 disp(['ADC dwell time = ', num2str(adc.dwell*1e6), ' us']) ;
 % realign the ADC with respect to the gradient
 time_to_center=adc.dwell*((adcSamples-1)/2+0.5); % I've been told that Siemens samples in the center of the dwell period
@@ -155,11 +201,11 @@ TE = rf.shape_dur/2 + rf.ringdownTime + mr.calcDuration(gzReph)+...
 disp(['TR = ', num2str(TR), ' s', ', TE = ', num2str(1000*TE), ' ms']) ;
 % change orientation to match the siemens product sequence
 % reverse the polarity of all gradients in readout direction (Gx)
-if vendor(1) == 's' || vendor(1) == 'S' % if vendor is Siemens
+if lower(vendor(1)) == 's'      % if vendor is Siemens
     gxPre = mr.scaleGrad(gxPre, -1) ;
     gx = mr.scaleGrad(gx, -1) ;
     gxSpoil = mr.scaleGrad(gxSpoil, -1) ;
-elseif vendor(1) == 'g' || vendor(1) == 'G' % if vendor is GE
+elseif lower(vendor(1)) == 'g'  % if vendor is GE
     gyPre = mr.scaleGrad(gyPre, -1) ;
     gy_blipup = mr.scaleGrad(gy_blipup, -1) ;
     gy_blipdown = mr.scaleGrad(gy_blipdown, -1) ;
@@ -235,8 +281,12 @@ tic ;
 % seq.addBlock(mr.makeLabel('SET','REP', 0)) ;
 for r=1:Nrep
     disp(['current repetition = ', num2str(r), '/', num2str(Nrep)]) ;
-    seq.addBlock(lblResetSLC ) ;
+    if lower(vendor(1)) ~= 'g'
+        % can't have segment of zero duration
+        seq.addBlock(lblResetSLC ) ;
+    end
     for s=1:Nslices
+        seq.addTRID('slice');
         seq.addBlock(gp_r, gp_p, gp_s) ;
         seq.addBlock(rf_fs, gn_r, gn_p, gn_s) ;
         rf.freqOffset=gz.amplitude*slicePositions(s) ;
@@ -350,7 +400,7 @@ seq.setDefinition('TrapezoidGriddingParameters', [gx.riseTime gx.flatTime gx.fal
 
 seq.write('QA_epi_final.seq');
 
-seq.plot('showBlocks', 1, 'timeRange', TR*([0 1]), 'timeDisp', 'us', 'stacked', 1) ;
+%seq.plot('showBlocks', 1, 'timeRange', TR*([0 1]), 'timeDisp', 'us', 'stacked', 1) ;
 
 %% evaluate label settings
 % adc_lbl=seq.evalLabels('evolution','adc');
