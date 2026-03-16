@@ -1,13 +1,13 @@
 % Convert .seq files to .pge binary files for execution on GE
 
-scanner_pge_location = '/export/home/sdc/PulseqQA/';
+scanner_pge_location = '/srv/nfs/psd/usr/psd/pulseq/v7/QA/';
 
 % Loop over the .seq files
 scans = {'QA_epi_final.seq', 'QA_T1_final.seq'};
 pislquant = [100 100];  % number of ADC events to use for receive gain calibration in Auto Prescan
 opuser1 = [21 22];     % Determines .entry file number, i.e., pge<opuser1>.entry
 
-for s = 1 : length(scans)
+for s = 1 %: length(scans)
     fprintf('\nConverting %s.seq to .pge file:\n', scans{s});
 
     seq_name = erase(scans{s}, {'.seq'});

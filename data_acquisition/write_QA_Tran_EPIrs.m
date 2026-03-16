@@ -28,7 +28,7 @@ fprintf('Nslices = %d, Nrep = %d\n', Nslices, Nrep);
 
 if lower(vendor(1)) == 'g'
     % Subtract segment dead/ringdown times from TR
-    TR = TR  - sys.blockDurationRaster * round((sys_ge.segment_dead_time + sys_ge.segment_ringdown_time)/sys.blockDurationRaster)
+    TR = TR  - sys.blockDurationRaster * round((sys_ge.segment_dead_time + sys_ge.segment_ringdown_time)/sys.blockDurationRaster);
 end
 
 readoutBW = 1/readoutTime ; % readout bandwidth
@@ -300,7 +300,9 @@ for r=1:Nrep
         seq.addBlock(gxSpoil, gyPost, gzSpoil) ;
        seq.addBlock(mr.makeDelay(TRdelay_perSlice)) ;
     end
-    seq.addBlock(lblIncREP) ;
+    if ~sys.flag_trid
+        seq.addBlock(lblIncREP) ;
+    end
 end
 toc ;
 %% check whether the timing of the sequence is correct
