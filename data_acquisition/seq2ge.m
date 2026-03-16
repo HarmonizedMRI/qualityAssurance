@@ -1,9 +1,5 @@
 % Convert .seq files to .pge binary files for execution on GE
 
-% get Pulseq toolbox
-system('git clone --branch master git@github.com:pulseq/pulseq.git');
-addpath pulseq/matlab
-
 % get toolbox to convert .seq file to a PulSeg sequence (psq) object
 system('git clone git@github.com:HarmonizedMRI/pulseg.git');
 addpath pulseg/matlab

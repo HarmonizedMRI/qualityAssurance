@@ -5,6 +5,30 @@
 * `QA_record.xlsx`: Excel sheet for the record of QA measurements.
 * `QA_MAGMA.pdf`: product and Pulseq-based sequence protocols on Cima.X for quality assurance.
 
+## Setup
+
+### Get Pulseq toolbox
+
+In MATLAB:
+```matlab
+system('git clone --branch master git@github.com:pulseq/pulseq.git');
+addpath pulseq/matlab
+```
+
+### Set up Python environment (for `mr.makeSLRpulse`)
+
+On Linux command line:
+```bash
+sudo apt install python3.12-venv
+python3 -m venv myvenv
+source myvenv/bin/activate
+pip install matplotlib
+pip install scipy
+pip install sigpy
+```
+
+
+
 ## GE users
 
 In MATLAB:

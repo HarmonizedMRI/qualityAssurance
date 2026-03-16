@@ -1,12 +1,51 @@
 % ACR spin-echo sequence for quality control
 % transversal T1 series
 
-system = mr.opts('MaxGrad',24,'GradUnit','mT/m',...
-    'MaxSlew',30,'SlewUnit','T/m/s',...
-    'rfRingdownTime', 20e-6, 'rfDeadtime', 100e-6,...
-    'adcDeadTime', 20e-6, 'B0', 2.89 ... % this is Siemens' 3T
-);
-vendor = 'ge' ;
+setvendor;
+
+% Set system limits
+max_grad = 24;    % mT/m
+max_slew = 30;   % T/m/s
+
+switch lower(vendor(1))
+    case 's'
+        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
+              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
+              'rfDeadTime', 100e-6, ... 
+              'rfRingdownTime', 20e-6, ...
+              'adcDeadTime', 20e-6, ... 
+              'B0', 2.89);                  % this is Siemens' 3T
+
+    case 'g'
+        % System limits used in design.
+        % On GE, block boundaries disappear inside segments, so it may be ok
+        % to set dead/ringdown times to 0 in practice here.
+        sys = mr.opts('maxGrad', max_grad, 'gradUnit','mT/m', ...
+              'maxSlew', max_slew, 'slewUnit', 'T/m/s', ...
+              'rfDeadTime', 100e-6, ...     % or 0
+              'rfRingdownTime', 0e-6, ...  % or 0
+              'adcDeadTime', 0e-6, ...     % or 0
+              'adcRasterTime', 2e-6, ...    % GE dwell time must be a multiple of 2us
+              'rfRasterTime', 4e-6, ...     % 2e-6, or any integer multiple thereof
+              'gradRasterTime', 4e-6, ...   % 4e-6, or any integer multiple thereof
+              'blockDurationRaster', 4e-6, ... % 4e-6, or any integer multiple thereof
+              'B0', 3.0);
+
+        % additional system limits for GE
+        psd_rf_wait  = 50e-6;   % RF–gradient delay (s), scanner-specific
+        psd_grd_wait = 50e-6;   % ADC–gradient delay (s), scanner-specific
+        b1_max   = sys.maxB1/sys.gamma/1e-4;  % Gauss
+        g_max    = max_grad/10;           % Gauss/cm
+        slew_max = max_slew/10;           % Gauss/cm/ms
+        coil     = 'xrm';        % See pge2.opts(). 'xrm' (MR750), 'hrmw' (Premier), 'magnus', ...
+        sys_ge = pge2.opts(psd_rf_wait, psd_grd_wait, b1_max, g_max, slew_max, coil);
+
+    otherwise
+        error("Vendor must be 'GE' or 'Siemens' (for now)");
+end
+
+system = sys;
+
 seq = mr.Sequence(system) ;              % Create a new sequence object
 adcDur = 2*2.56e-3 ; 
 disp(['readout bandwidht = ', num2str(1/adcDur), ' Hz/pixel']) ;
