@@ -44,10 +44,14 @@ The scripts call `mr.makeSLRpulse`, which requires Python.
 Example setup on Linux:
 
 ```bash
-sudo apt install python3.12-venv   # or whichever python version you have available
 python3 -m venv qa_env
 source qa_env/bin/activate
 pip install matplotlib scipy sigpy
+```
+
+If venv is not already installed, do, e.g.,
+```bash
+sudo apt install python3.12-venv   # or whichever python version you have available
 ```
 
 Start MATLAB from the same environment:
